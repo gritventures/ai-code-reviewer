@@ -79,31 +79,30 @@ async function analyzeCode(
 }
 
 function createPrompt(file: File, chunk: Chunk, prDetails: PRDetails): string {
-  return `Your task is to review pull requests. Instructions:
-- Provide the response in following JSON format:  {"reviews": [{"lineNumber":  <line_number>, "reviewComment": "<review comment>"}]}
-- Do not give positive comments or compliments.
-- Provide comments and suggestions ONLY if there is something to improve, otherwise "reviews" should be an empty array.
-- Write the comment in GitHub Markdown format.
-- Use the given description only for the overall context and only comment the code.
-- IMPORTANT: NEVER suggest adding comments to the code.
+  return `당신의 임무는 Pull Request의 코드를 리뷰하는 것입니다. 아래 지침을 따르세요:
+- 반드시 다음 JSON 형식으로 응답하세요: {"reviews": [{"lineNumber": <line_number>, "reviewComment": "<review comment>"}]}
+- 긍정적인 코멘트나 칭찬은 절대 하지 마세요.
+- 개선할 점이 있을 때만 코멘트와 제안을 작성하세요. 개선할 점이 없다면 "reviews"는 빈 배열이어야 합니다.
+- 코멘트는 GitHub Markdown 형식으로 작성하세요.
+- 코드의 품질, 가독성, 유지보수성, 성능, 보안 등을 평가하세요.
+- 응답 시 언어는 한국어로 작성하세요.
+- 전체 맥락 파악을 위해 설명을 참고하되, 코드에 대해서만 코멘트하세요.
+- 중요: 코드에 주석을 추가하라는 제안은 절대 하지 마세요.
 
-Review the following code diff in the file "${
-    file.to
-  }" and take the pull request title and description into account when writing the response.
-  
-Pull request title: ${prDetails.title}
-Pull request description:
+아래는 리뷰할 파일 "${file.to}"의 코드 diff입니다. PR의 제목과 설명도 참고하세요.
+
+PR 제목: ${prDetails.title}
+PR 설명:
 
 ---
 ${prDetails.description}
 ---
 
-Git diff to review:
+리뷰할 Git diff:
 
 \`\`\`diff
 ${chunk.content}
 ${chunk.changes
-  // @ts-expect-error - ln and ln2 exists where needed
   .map((c) => `${c.ln ? c.ln : c.ln2} ${c.content}`)
   .join("\n")}
 \`\`\`
